@@ -1,0 +1,11 @@
+#!/bin/bash
+
+read name
+
+if [ $name == "mina"  ]; then
+	echo 5
+else
+	echo 10
+fi
+
+exit 10
