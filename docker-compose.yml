@@ -5,12 +5,16 @@ services:
     hostname: client
     mem_limit: 128m
 
+  redis:
+    image: "redis:latest"
+    mem_limit: 128m
+  
   server:
     image: "mena5800/multi-server"
     hostname: api
     environment:
-      - REDIS_HOST=$REDIS_HOST
-      - REDIS_PORT=$REDIS_PORT
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - PGUSER=$PGUSER
       - PGHOST=$PGHOST
       - PGDATABASE=$PGDATABASE
