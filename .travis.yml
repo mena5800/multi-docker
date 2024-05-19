@@ -14,13 +14,13 @@ after_success:
   - docker build -t mena5800/multi-server ./server
   - docker build -t mena5800/multi-worker ./worker
 
-  # # log in docker hub
-  # - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
-  # # take this images and push them to docker hub
-  # - docker push mena5800/multi-client
-  # - docker push mena5800/multi-nginx
-  # - docker push mena5800/multi-server
-  # - docker push mena5800/multi-worker
+  # log in docker hub
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # take this images and push them to docker hub
+  - docker push mena5800/multi-client
+  - docker push mena5800/multi-nginx
+  - docker push mena5800/multi-server
+  - docker push mena5800/multi-worker
  
 
 deploy:
