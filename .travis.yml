@@ -29,6 +29,7 @@ deploy:
   app: "multi-docker"
   env: "Multi-docker-env"
   bucket_name: "elasticbeanstalk-eu-west-1-975050377735"
+  # add this bucket_path to s3
   bucket_path: "multi-docker"
   on:
     branch: main
