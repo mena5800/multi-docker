@@ -29,14 +29,20 @@ pgClient.on('connect', (client) => {
     .catch((err) => console.error(err));
 });
 
-// Redis Client Setup
-const redis = require('redis');
-const redisClient = redis.createClient({
+// Redis Client Setup using ioredis
+const Redis = require('ioredis');
+const redisClient = new Redis({
   host: keys.redisHost,
   port: keys.redisPort,
-  retry_strategy: () => 1000,
+  retryStrategy: times => Math.min(times * 100, 1000),
 });
-const redisPublisher = redisClient.duplicate();
+
+// Duplicate the Redis client for publishing
+const redisPublisher = new Redis({
+  host: keys.redisHost,
+  port: keys.redisPort,
+  retryStrategy: times => Math.min(times * 100, 1000),
+});
 
 // Express route handlers
 
@@ -46,14 +52,16 @@ app.get('/', (req, res) => {
 
 app.get('/values/all', async (req, res) => {
   const values = await pgClient.query('SELECT * from values');
-
   res.send(values.rows);
 });
 
 app.get('/values/current', async (req, res) => {
-  redisClient.hgetall('values', (err, values) => {
+  try {
+    const values = await redisClient.hgetall('values');
     res.send(values);
-  });
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 
 app.post('/values', async (req, res) => {
@@ -63,11 +71,14 @@ app.post('/values', async (req, res) => {
     return res.status(422).send('Index too high');
   }
 
-  redisClient.hset('values', index, 'Nothing yet!');
-  redisPublisher.publish('insert', index);
-  pgClient.query('INSERT INTO values(number) VALUES($1)', [index]);
-
-  res.send({ working: true });
+  try {
+    await redisClient.hset('values', index, 'Nothing yet!');
+    await redisPublisher.publish('insert', index);
+    await pgClient.query('INSERT INTO values(number) VALUES($1)', [index]);
+    res.send({ working: true });
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 
 app.listen(5000, (err) => {

@@ -3,6 +3,8 @@ services:
   client:
     image: "mena5800/multi-client"
     hostname: client
+    mem_limit: 128m
+
   server:
     image: "mena5800/multi-server"
     hostname: api
@@ -14,14 +16,19 @@ services:
       - PGDATABASE=$PGDATABASE
       - PGPASSWORD=$PGPASSWORD
       - PGPORT=$PGPORT
+    mem_limit: 128m
+
   worker:
     image: "mena5800/multi-worker"
     hostname: worker
     environment:
       - REDIS_HOST=$REDIS_HOST
       - REDIS_PORT=$REDIS_PORT
+    mem_limit: 128m
+
   nginx:
     image: "mena5800/multi-nginx"
     hostname: nginx
+    mem_limit: 128m
     ports:
       - "80:80"
